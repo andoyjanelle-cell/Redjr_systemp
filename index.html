@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="description" content="RedJr Builders product ordering and inventory management prototype.">
+<meta name="theme-color" content="#172536">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RedJr Builders | Point of Sale & Inventory</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="loginScreen" class="login-screen">
+  <section class="login-brand">
+    <div class="brand-logo"><span class="logo">RJ</span><span>RedJr Builders<br>&amp; Construction Supply</span></div>
+    <div><div class="badge b-red" style="background:#ffffff1b;color:#fff">BUSINESS PORTAL</div><h1>Building better,<br>one order at a time.</h1><p>A simpler way to browse construction supplies, manage orders, and keep inventory organized.</p><div class="login-points"><span>✓ Product catalog</span><span>✓ Order tracking</span><span>✓ Stock monitoring</span></div></div>
+    <div class="login-footer">RedJr Builders and Construction Supply</div>
+  </section>
+  <section class="login-form-wrap"><form class="login-card" id="loginForm"><h2>Welcome back</h2><p>Sign in to manage your store workspace.</p><label for="email">Email address</label><input id="email" type="email" required value="admin@redjr.test" autocomplete="username"><label for="password">Password</label><input id="password" type="password" required value="redjr123" autocomplete="current-password"><div class="field-help">Demo credentials are prefilled for presentation.</div><button class="primary" type="submit">Sign in to dashboard <span aria-hidden="true">→</span></button><div class="demo-hint"><strong>Demo access</strong><br>Email: admin@redjr.test<br>Password: redjr123<br><span class="muted">This is a front-end classroom prototype; it does not authenticate real accounts.</span></div></form></section>
+</div>
+<div id="app" class="app hidden">
+<aside id="sidebar" class="sidebar">
+  <div class="side-brand"><span class="logo">RJ</span><div><strong>RedJr Builders</strong><small>Construction Supply</small></div></div>
+  <div class="nav-label">Workspace</div>
+  <nav class="nav" aria-label="Main navigation">
+    <button data-page="dashboard" class="active"><span class="nav-ico">▦</span>Dashboard</button>
+    <button data-page="pos"><span class="nav-ico">₱</span>Point of Sale</button>
+    <button data-page="products"><span class="nav-ico">▤</span>Products</button>
+    <button data-page="orders"><span class="nav-ico">▣</span>Orders <span id="navOrderCount" class="badge b-red hidden"></span></button>
+    <button data-page="inventory"><span class="nav-ico">▥</span>Inventory</button>
+    <button data-page="reports"><span class="nav-ico">▨</span>Reports</button>
+    <button data-page="history"><span class="nav-ico">◷</span>History</button>
+  </nav>
+  <div class="side-bottom">RedJr Builders &amp; Construction Supply<br><br>POS v2.0 · Data is saved in this browser</div>
+</aside>
+<main class="main">
+<header class="topbar"><div style="display:flex;align-items:center;gap:12px"><button id="mobileMenu" class="secondary mobile-menu" aria-label="Open navigation">☰</button><div><div class="crumb">RedJr Builders / <span id="crumb">Dashboard</span></div><h2 id="topTitle">Dashboard</h2></div></div><div class="top-actions"><span id="todayLabel" class="date-label"></span><div class="profile-menu"><button id="profileButton" class="avatar" aria-label="Open account menu">RJ</button><div id="profilePop" class="profile-pop hidden"><button id="profileDetails">Account details</button><button id="exportData">Export orders (CSV)</button><button id="resetDemo">Reset demo data</button><button id="startFresh">Start fresh (go live)</button><button id="logoutButton">Sign out</button></div></div></div></header>
+<div class="content">
+<section id="page-dashboard" class="page">
+<div class="page-head"><div><h1 id="greeting">Good morning, Admin</h1><p>Here’s what’s happening with your store today.</p></div><div class="page-actions"><button class="outline" onclick="navigate('reports')">View reports</button><button class="outline" onclick="navigate('products')">＋ Delivery / pickup order</button><button class="primary" onclick="navigate('pos')">₱ New sale (POS)</button></div></div>
+<div class="stats" id="dashboardStats"></div>
+<section class="panel" style="margin-bottom:18px"><div class="panel-head"><div><h3>Monthly sales</h3><div class="panel-sub">Completed sales per month · last 6 months</div></div><button class="outline small" onclick="navigate('reports')">Full report</button></div><div class="panel-body"><div id="dashMonthly" class="chart-wrap"></div></div></section>
+<div class="layout-2"><section class="panel"><div class="panel-head"><div><h3>Recent orders</h3><div class="panel-sub">Latest customer transactions</div></div><button class="outline small" onclick="navigate('orders')">View all</button></div><div id="recentOrders" class="table-wrap"></div></section>
+<section class="panel"><div class="panel-head"><div><h3>Inventory watch</h3><div class="panel-sub">Items that may need restocking</div></div><button class="outline small" onclick="navigate('inventory')">Manage stock</button></div><div class="panel-body"><div id="inventoryWatch" class="quick-list"></div></div></section></div>
+</section>
+<section id="page-pos" class="page hidden">
+<div class="page-head"><div><h1>Point of Sale</h1><p>Scan or search items, take payment, and print the receipt.</p></div><div class="page-actions"><button id="posHeldBtn" class="outline">Held sales <span id="heldCount" class="badge b-gray">0</span></button><button class="outline" onclick="openDaySummary()">Today’s summary</button></div></div>
+<div class="order-layout"><div>
+<div class="toolbar"><div class="search pos-search"><input id="posSearch" placeholder="Scan barcode or type SKU / product name, then press Enter…" aria-label="Scan or search products" autocomplete="off"></div></div>
+<div id="posCategoryChips" class="category-row" style="margin-bottom:15px"></div>
+<div id="posGrid" class="pos-grid"></div></div>
+<button id="posMobileBar" class="primary mobile-cartbar hidden"></button>
+<aside id="posCartPanel" class="panel cart-panel"><div class="panel-head"><div><h3>Current sale</h3><div class="panel-sub">Tap a product to add it</div></div><span id="posCount" class="badge b-blue">0 items</span></div><div class="panel-body">
+<label for="posCustomer" style="margin-top:0">Customer (optional)</label><input id="posCustomer" placeholder="Walk-in customer">
+<div id="posLines" class="pos-cart-lines" style="margin-top:6px"></div>
+<div class="disc-row"><div><label for="posDiscType">Discount</label><select id="posDiscType"><option value="none">No discount</option><option value="senior">Senior citizen (20%)</option><option value="pwd">PWD (20%)</option><option value="pct">Custom percent</option><option value="amt">Custom amount</option></select></div><div id="posDiscValWrap" class="hidden"><label for="posDiscVal" id="posDiscLabel">Value</label><input id="posDiscVal" type="number" min="0" step="0.01"></div></div>
+<div id="posSummary"></div>
+<div class="cart-actions"><button id="posChargeBtn" class="primary charge-btn">Charge</button><div class="two-btn"><button id="posHoldBtn" class="outline">Hold sale</button><button id="posClearBtn" class="outline">Clear</button></div></div>
+<p class="tiny muted">Shortcuts: F2 search · F9 charge. Prices already include 12% VAT.</p></div></aside></div>
+</section>
+<section id="page-products" class="page hidden">
+<div class="page-head"><div><h1>Product catalog</h1><p>Browse available supplies and add items to an order.</p></div><div class="page-actions"><button class="outline" onclick="openAddProduct()">＋ Add product</button></div></div>
+<div class="order-layout"><div><div class="toolbar"><div class="search"><input id="productSearch" placeholder="Search product or SKU..." aria-label="Search products"></div><select id="productSort" aria-label="Sort products"><option value="category">Sort: By category</option><option value="name">Sort: Name A–Z</option><option value="price-low">Price: Low to high</option><option value="price-high">Price: High to low</option><option value="stock">Stock: Lowest first</option></select></div><div id="categoryChips" class="category-row" style="margin-bottom:15px"></div><div id="productGrid" class="product-grid"></div></div>
+<aside class="panel cart-panel"><div class="panel-head"><div><h3>Current order</h3><div class="panel-sub">Review items before checkout</div></div><span id="cartCount" class="badge b-blue">0 items</span></div><div class="panel-body"><div class="form-grid"><div class="full"><label for="customerName">Customer name *</label><input id="customerName" placeholder="e.g. Juan Dela Cruz"></div><div class="full"><label for="customerContact">Contact number</label><input id="customerContact" placeholder="09XX XXX XXXX" inputmode="tel"></div><div class="full"><label for="orderType">Fulfillment</label><select id="orderType"><option value="Pickup">Store pickup</option><option value="Delivery">Delivery</option></select></div><div class="full hidden" id="addressField"><label for="deliveryAddress">Delivery address *</label><textarea id="deliveryAddress" rows="2" placeholder="House no., street, barangay, city"></textarea></div></div><div id="cartLines" style="margin-top:12px"></div><div id="cartSummary"></div><div class="cart-actions"><button id="checkoutBtn" class="primary">Review and place order</button><button id="clearCartBtn" class="outline">Clear order</button></div><p class="tiny muted">No payment is processed. This prototype simulates an order workflow.</p></div></aside></div>
+</section>
+<section id="page-orders" class="page hidden">
+<div class="page-head"><div><h1>Orders</h1><p>Review orders and update their fulfillment status.</p></div><div class="page-actions"><button class="primary" onclick="navigate('products')">＋ New order</button></div></div>
+<div class="stats" id="orderStats"></div><div class="panel"><div class="panel-body"><div class="toolbar"><div class="search"><input id="orderSearch" placeholder="Search order ID or customer..." aria-label="Search orders"></div><select id="orderStatusFilter"><option value="All">All statuses</option><option>Pending</option><option>Confirmed</option><option>Ready for pickup</option><option>Out for delivery</option><option>Completed</option><option>Cancelled</option></select></div><div id="ordersTable" class="table-wrap"></div></div></div>
+</section>
+<section id="page-inventory" class="page hidden">
+<div class="page-head"><div><h1>Inventory management</h1><p>Monitor available quantities and update stock levels.</p></div><div class="page-actions"><button class="outline" onclick="exportCSV('inventory')">Export CSV</button><button class="primary" onclick="openAddProduct()">＋ Add product</button></div></div>
+<div class="stats" id="inventoryStats"></div>
+<section class="panel" style="margin-bottom:18px"><div class="panel-head"><div><h3>Stock levels</h3><div class="panel-sub">Bar graph of current stock · follows the search and stock filter below</div></div><select id="invChartMode" aria-label="Chart mode" style="width:auto"><option value="qty">Show quantity</option><option value="pct">Show % of reorder level</option></select></div><div class="panel-body"><div id="invChart"></div></div></section>
+<div class="panel"><div class="panel-body"><div class="toolbar"><div class="search"><input id="inventorySearch" placeholder="Search item or SKU..." aria-label="Search inventory"></div><select id="stockFilter"><option value="All">All stock levels</option><option value="Low Stock">Low stock</option><option value="Out of Stock">Out of stock</option><option value="In Stock">In stock</option></select></div><div id="inventoryTable" class="table-wrap"></div></div></div>
+</section>
+<section id="page-reports" class="page hidden">
+<div class="page-head"><div><h1>Reports &amp; insights</h1><p>A simple overview of sales activity and product performance.</p></div><div class="page-actions"><button class="outline" onclick="window.print()">Print report</button><button class="primary" onclick="exportCSV('orders')">Export orders CSV</button></div></div>
+<div class="stats" id="reportStats"></div>
+<section class="panel" style="margin-bottom:18px"><div class="panel-head"><div><h3>Monthly sales</h3><div class="panel-sub">Completed orders only · current month is highlighted</div></div><div class="chart-controls"><select id="repMetric" aria-label="Metric"><option value="sales">Sales (₱)</option><option value="count">Number of orders</option></select><select id="repMonths" aria-label="Period"><option value="6">Last 6 months</option><option value="12" selected>Last 12 months</option></select></div></div><div class="panel-body"><div id="repMonthly" class="chart-wrap"></div><div id="repMonthlySummary" class="chart-summary"></div></div></section>
+<div class="layout-2"><section class="panel"><div class="panel-head"><div><h3>Sales by order status</h3><div class="panel-sub">Order count by current status</div></div></div><div class="panel-body" id="statusBars"></div></section><section class="panel"><div class="panel-head"><div><h3>Top products</h3><div class="panel-sub">Based on quantities in completed and active orders</div></div></div><div class="panel-body" id="topProducts"></div></section></div><div class="notice" style="margin-top:18px">Report values are calculated from the orders and sales saved in this browser. Use “Start fresh (go live)” in the account menu to clear the demo sales before recording real ones.</div>
+</section>
+<section id="page-history" class="page hidden">
+<div class="page-head"><div><h1>Activity history</h1><p>Keep track of actions taken in this prototype.</p></div><div class="page-actions"><button class="outline" onclick="exportCSV('history')">Export history CSV</button></div></div><div class="panel"><div class="panel-body"><div class="toolbar"><div class="search"><input id="historySearch" placeholder="Search activity..." aria-label="Search activity history"></div><button class="outline" onclick="clearHistory()">Clear history</button></div><div id="historyTable" class="table-wrap"></div></div></div>
+</section>
+<div class="footer-note">RedJr Builders and Construction Supply · Point of Sale &amp; Inventory</div>
+</div></main></div>
+<div id="modalRoot"></div><div id="toastRegion" class="toast-region" aria-live="polite"></div>
+<script src="script.js" defer></script>
+</body>
+</html>
